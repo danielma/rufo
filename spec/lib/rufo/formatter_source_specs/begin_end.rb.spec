@@ -222,7 +222,7 @@ begin
   end
 end
 
-#~# ORIGINAL skip
+#~# ORIGINAL
 
 begin
   for x in y do 1 end
@@ -231,7 +231,9 @@ end
 #~# EXPECTED
 
 begin
-  for x in y do 1 end
+  for x in y
+    1
+  end
 end
 
 #~# ORIGINAL skip

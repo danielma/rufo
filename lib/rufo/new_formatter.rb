@@ -191,6 +191,8 @@ class Rufo::NewFormatter
       visit_call_without_receiver(node)
     when :method_add_block
       visit_call_with_block(node)
+    when :for
+      visit_for(node)
     when :BEGIN
       visit_BEGIN(node)
     when :END
@@ -851,6 +853,29 @@ class Rufo::NewFormatter
     end
   end
 
+  def visit_for(node)
+    #[:for, var, collection, body]
+    _, var, collection, body = node
+
+    line = @line
+
+    consume_keyword "for"
+    consume_space
+
+    visit_comma_separated_list to_ary(var)
+
+    consume_space
+    consume_keyword "in"
+    consume_space
+    visit collection
+    skip_space
+
+    indent_body body
+
+    write_indent if @line != line
+    consume_keyword "end"
+  end
+
   def visit_BEGIN(node)
     visit_BEGIN_or_END node, "BEGIN"
   end
@@ -1212,6 +1237,11 @@ class Rufo::NewFormatter
     # Since that's a super weird formatting for if, probably way too obsolete
     # by now, we just remove it.
     if keyword?("then")
+      move_to_next_token
+    end
+
+    if keyword?("do")
+      write_hardline
       move_to_next_token
     end
 
