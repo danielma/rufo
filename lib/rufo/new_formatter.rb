@@ -590,6 +590,7 @@ class Rufo::NewFormatter
     _, body, rescue_body, else_body, ensure_body = node
 
     if body == [[:void_stmt]]
+      write_breaking unless semicolon?
       skip_space_or_newline
     else
       write_breaking

@@ -1,4 +1,4 @@
-#~# ORIGINAL 
+#~# ORIGINAL
 
 begin;end
 
@@ -6,9 +6,9 @@ begin;end
 
 begin; end
 
-#~# ORIGINAL 
+#~# ORIGINAL
 
-begin 
+begin
  end
 
 #~# EXPECTED
@@ -16,7 +16,7 @@ begin
 begin
 end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin 1 end
 
@@ -24,7 +24,7 @@ begin 1 end
 
 begin 1 end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin; 1; end
 
@@ -32,7 +32,7 @@ begin; 1; end
 
 begin; 1; end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin; 1; 2; end
 
@@ -40,9 +40,9 @@ begin; 1; 2; end
 
 begin; 1; 2; end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
-begin; 1 
+begin; 1
  2; end
 
 #~# EXPECTED
@@ -50,10 +50,10 @@ begin; 1
 begin; 1
   2; end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin
- 1 
+ 1
  end
 
 #~# EXPECTED
@@ -62,11 +62,11 @@ begin
   1
 end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin
- 1 
- 2 
+ 1
+ 2
  end
 
 #~# EXPECTED
@@ -76,13 +76,13 @@ begin
   2
 end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
-begin 
- begin 
- 1 
- end 
- 2 
+begin
+ begin
+ 1
+ end
+ 2
  end
 
 #~# EXPECTED
@@ -94,7 +94,7 @@ begin
   2
 end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin # hello
  end
@@ -104,7 +104,7 @@ begin # hello
 begin # hello
 end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin;# hello
  end
@@ -114,7 +114,7 @@ begin;# hello
 begin # hello
 end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin
  1  # a
@@ -126,12 +126,12 @@ begin
   1  # a
 end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin
  1  # a
- # b 
- 3 # c 
+ # b
+ 3 # c
  end
 
 #~# EXPECTED
@@ -142,7 +142,7 @@ begin
   3 # c
 end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin
 end
@@ -156,7 +156,7 @@ end
 
 # foo
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin
   begin 1 end
@@ -168,7 +168,7 @@ begin
   begin 1 end
 end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin
   def foo(x) 1 end
@@ -180,7 +180,7 @@ begin
   def foo(x) 1 end
 end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin
   if 1 then 2 end
@@ -192,7 +192,7 @@ begin
   if 1 then 2 end
 end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin
   if 1 then 2 end
@@ -204,7 +204,7 @@ begin
   if 1 then 2 end
 end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin
   foo do 1 end
@@ -216,7 +216,7 @@ begin
   foo do 1 end
 end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin
   for x in y do 1 end
@@ -228,7 +228,7 @@ begin
   for x in y do 1 end
 end
 
-#~# ORIGINAL 
+#~# ORIGINAL skip
 
 begin
   # foo
