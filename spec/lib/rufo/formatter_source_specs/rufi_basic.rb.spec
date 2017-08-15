@@ -83,7 +83,8 @@ end
 
 #~# EXPECTED
 
-def empty; end
+def empty
+end
 
 #~# ORIGINAL basic method
 
@@ -157,9 +158,11 @@ end
 #~# EXPECTED
 
 def hello
-  def method_inside; end
+  def method_inside
+  end
 
-  def sherpa; end
+  def sherpa
+  end
 end
 
 #~# ORIGINAL one-line separated statements inside a method
@@ -336,7 +339,7 @@ def big_method(
 )
   'ok'
 end
- 
+
 #~# ORIGINAL statements inside a method
 
 def my_method
@@ -444,7 +447,8 @@ end
 
 #~# EXPECTED
 
-begin; end
+begin
+end
 
 #~# ORIGINAL begin
 

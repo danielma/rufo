@@ -4,7 +4,8 @@ begin;end
 
 #~# EXPECTED
 
-begin; end
+begin
+end
 
 #~# ORIGINAL
 
@@ -193,7 +194,7 @@ begin
   end
 end
 
-#~# ORIGINAL skip
+#~# ORIGINAL begin if..then..end end
 
 begin
   if 1 then 2 end
@@ -202,19 +203,9 @@ end
 #~# EXPECTED
 
 begin
-  if 1 then 2 end
-end
-
-#~# ORIGINAL skip
-
-begin
-  if 1 then 2 end
-end
-
-#~# EXPECTED
-
-begin
-  if 1 then 2 end
+  if 1
+    2
+  end
 end
 
 #~# ORIGINAL skip

@@ -374,7 +374,13 @@ class Rufo::NewFormatter
 
       indent(indent_level) do
         consume_keyword "begin"
-        write_if_break(HARDLINE, "; ")
+
+        if body_statement[1].empty?
+          write "; "
+        else
+          write_hardline
+        end
+
         visit body_statement
       end
     end
@@ -511,7 +517,7 @@ class Rufo::NewFormatter
         end
       end
 
-      write_if_break(HARDLINE, "; ")
+      write_hardline
 
       visit body
     end
@@ -657,7 +663,9 @@ class Rufo::NewFormatter
     # [:if, cond, then, else]
     _, condition, body, else_body = node
 
-    indent(@column) do
+    indent_level = @column > @indent ? @column : @indent
+
+    indent(indent_level) do
       consume_keyword(keyword)
       consume_space
       visit condition
@@ -1141,6 +1149,13 @@ class Rufo::NewFormatter
   end
 
   def indent_body(exps)
+    # A then keyword can appear after a newline after an `if`, `unless`, etc.
+    # Since that's a super weird formatting for if, probably way too obsolete
+    # by now, we just remove it.
+    if keyword?("then")
+      move_to_next_token
+    end
+
     indent do
       visit_exps exps #, with_lines: false
     end
@@ -1148,7 +1163,7 @@ class Rufo::NewFormatter
 
   def check(kind)
     if current_token_kind != kind
-      bug "Expected token #{kind}, not #{current_token_kind}\n\n#{@tokens.last(2).reverse.ai}"
+      bug "Expected token #{kind}, not #{current_token_kind}\n\n#{@tokens.last(3).reverse.ai}"
     end
   end
 
