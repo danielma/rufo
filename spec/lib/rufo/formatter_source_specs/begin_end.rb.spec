@@ -16,41 +16,50 @@ begin
 begin
 end
 
-#~# ORIGINAL skip
+#~# ORIGINAL
 
 begin 1 end
 
 #~# EXPECTED
 
-begin 1 end
+begin
+  1
+end
 
-#~# ORIGINAL skip
+#~# ORIGINAL
 
 begin; 1; end
 
 #~# EXPECTED
 
-begin; 1; end
+begin
+  1
+end
 
-#~# ORIGINAL skip
+#~# ORIGINAL
 
 begin; 1; 2; end
 
 #~# EXPECTED
 
-begin; 1; 2; end
+begin
+  1
+  2
+end
 
-#~# ORIGINAL skip
+#~# ORIGINAL
 
 begin; 1
  2; end
 
 #~# EXPECTED
 
-begin; 1
-  2; end
+begin
+  1
+  2
+end
 
-#~# ORIGINAL skip
+#~# ORIGINAL
 
 begin
  1
@@ -62,7 +71,7 @@ begin
   1
 end
 
-#~# ORIGINAL skip
+#~# ORIGINAL
 
 begin
  1
@@ -76,7 +85,7 @@ begin
   2
 end
 
-#~# ORIGINAL skip
+#~# ORIGINAL
 
 begin
  begin
@@ -142,7 +151,7 @@ begin
   3 # c
 end
 
-#~# ORIGINAL skip
+#~# ORIGINAL
 
 begin
 end
@@ -156,7 +165,7 @@ end
 
 # foo
 
-#~# ORIGINAL skip
+#~# ORIGINAL
 
 begin
   begin 1 end
@@ -165,10 +174,12 @@ end
 #~# EXPECTED
 
 begin
-  begin 1 end
+  begin
+    1
+  end
 end
 
-#~# ORIGINAL skip
+#~# ORIGINAL
 
 begin
   def foo(x) 1 end
@@ -177,7 +188,9 @@ end
 #~# EXPECTED
 
 begin
-  def foo(x) 1 end
+  def foo(x)
+    1
+  end
 end
 
 #~# ORIGINAL skip
@@ -213,7 +226,9 @@ end
 #~# EXPECTED
 
 begin
-  foo do 1 end
+  foo do
+    1
+  end
 end
 
 #~# ORIGINAL skip

@@ -267,7 +267,7 @@ class Rufo::NewFormatter
         handle_comment
 
         if current_token_value.end_with?("\n")
-          write_hardline 
+          write_hardline
           found_newline = true
         end
 
