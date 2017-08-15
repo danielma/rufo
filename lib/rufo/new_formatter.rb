@@ -2,6 +2,7 @@
 
 require "ripper"
 require "awesome_print"
+require "byebug"
 
 class Rufo::NewFormatter
   def self.format(code, **options)
