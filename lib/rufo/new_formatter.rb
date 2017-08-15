@@ -107,6 +107,8 @@ class Rufo::NewFormatter
       visit_paren(node)
     when :bodystmt
       visit_bodystmt(node)
+    when :do_block
+      visit_do_block(node)
     when :if
       visit_if(node)
     when :unless
@@ -187,6 +189,8 @@ class Rufo::NewFormatter
       visit_comma_separated_list node[1]
     when :method_add_arg
       visit_call_without_receiver(node)
+    when :method_add_block
+      visit_call_with_block(node)
     when :BEGIN
       visit_BEGIN(node)
     when :END
@@ -446,6 +450,28 @@ class Rufo::NewFormatter
     visit args
   end
 
+  def visit_call_with_block(node)
+    # [:method_add_block, call, block]
+    _, call, block = node
+
+    visit call
+
+    if block[0] == :brace_block
+      consume_one_dynamic_space @spaces_around_block_brace
+    else
+      consume_space
+    end
+
+    #old_dot_column = @dot_column
+    #old_original_dot_column = @original_dot_column
+
+    visit block
+
+    #@dot_column = old_dot_column
+    #@original_dot_column = old_original_dot_column
+  end
+
+
   def visit_assign(node)
     # [:assign, target, value]
     _, target, value = node
@@ -540,6 +566,37 @@ class Rufo::NewFormatter
       move_to_next_token
 
       visit_assign_value value
+    end
+  end
+
+  def visit_do_block(node)
+    # [:brace_block, args, body]
+    _, args, body = node
+
+    line = @line
+
+    consume_keyword "do"
+
+    consume_block_args args
+
+    if body.first == :bodystmt
+      visit_bodystmt body
+    else
+      write_hardline
+      indent_body body
+      write_indent unless @line == line
+      consume_keyword "end"
+    end
+  end
+
+  def consume_block_args(args)
+    if args
+      consume_one_dynamic_space_or_newline @spaces_around_block_brace
+      # + 1 because of |...|
+      #                ^
+      indent(@column + 1) do
+        visit args
+      end
     end
   end
 
@@ -754,6 +811,8 @@ class Rufo::NewFormatter
     _, name, args = node
 
     visit name
+
+    return if args.empty?
 
     visit_call_at_paren(node)
   end

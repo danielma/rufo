@@ -208,7 +208,7 @@ begin
   end
 end
 
-#~# ORIGINAL skip
+#~# ORIGINAL
 
 begin
   foo do 1 end
