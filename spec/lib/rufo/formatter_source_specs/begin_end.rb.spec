@@ -111,8 +111,7 @@ begin # hello
 
 #~# EXPECTED
 
-begin
-  # hello
+begin # hello
 end
 
 #~# ORIGINAL begin comment end with semicolon
@@ -122,8 +121,7 @@ begin;# hello
 
 #~# EXPECTED
 
-begin
-  # hello
+begin # hello
 end
 
 #~# ORIGINAL begin..end with comment in body

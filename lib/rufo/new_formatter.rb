@@ -326,8 +326,11 @@ class Rufo::NewFormatter
         move_to_next_token
       when :on_comment
         write_hardline if skipped_empty_line
-
         handle_comment(trailing: !skipped_one_newline)
+
+        end_comes_next = (@tokens.last(3).first[2] == "end")
+        write_hardline if end_comes_next
+
         move_to_next_token
       else
         debug("skip_space_or_newline: end #{current_token_kind} #{current_token_value}")
@@ -380,10 +383,13 @@ class Rufo::NewFormatter
 
       indent(indent_level) do
         consume_keyword "begin"
+        no_trailing_comment = (@tokens[-2][1] != :on_comment)
 
         if body_statement[1].empty?
           write "; "
-        else
+        end
+
+        if no_trailing_comment
           write_hardline
         end
 
