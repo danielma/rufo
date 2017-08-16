@@ -1,4 +1,4 @@
-#~# ORIGINAL
+#~# ORIGINAL begin;end
 
 begin;end
 
@@ -7,7 +7,7 @@ begin;end
 begin
 end
 
-#~# ORIGINAL
+#~# ORIGINAL begin end space before end
 
 begin
  end
@@ -17,7 +17,7 @@ begin
 begin
 end
 
-#~# ORIGINAL
+#~# ORIGINAL single line begin..end
 
 begin 1 end
 
@@ -27,7 +27,7 @@ begin
   1
 end
 
-#~# ORIGINAL
+#~# ORIGINAL single line begin..end with semicolon
 
 begin; 1; end
 
@@ -37,7 +37,7 @@ begin
   1
 end
 
-#~# ORIGINAL
+#~# ORIGINAL single line begin..end with multiple semicolons
 
 begin; 1; 2; end
 
@@ -48,7 +48,7 @@ begin
   2
 end
 
-#~# ORIGINAL
+#~# ORIGINAL multiline begin..end with semicolons
 
 begin; 1
  2; end
@@ -60,7 +60,7 @@ begin
   2
 end
 
-#~# ORIGINAL
+#~# ORIGINAL multiline begin..end space before end
 
 begin
  1
@@ -72,7 +72,7 @@ begin
   1
 end
 
-#~# ORIGINAL
+#~# ORIGINAL multiline begin..end space before end 2
 
 begin
  1
@@ -86,7 +86,7 @@ begin
   2
 end
 
-#~# ORIGINAL
+#~# ORIGINAL nested begin..end
 
 begin
  begin
@@ -104,27 +104,29 @@ begin
   2
 end
 
-#~# ORIGINAL skip
+#~# ORIGINAL begin comment end
 
 begin # hello
  end
 
 #~# EXPECTED
 
-begin # hello
+begin
+  # hello
 end
 
-#~# ORIGINAL skip
+#~# ORIGINAL begin comment end with semicolon
 
 begin;# hello
  end
 
 #~# EXPECTED
 
-begin # hello
+begin
+  # hello
 end
 
-#~# ORIGINAL skip
+#~# ORIGINAL begin..end with comment in body
 
 begin
  1  # a
@@ -133,10 +135,10 @@ end
 #~# EXPECTED
 
 begin
-  1  # a
+  1 # a
 end
 
-#~# ORIGINAL skip
+#~# ORIGINAL begin..end with multiple comments in body
 
 begin
  1  # a
@@ -147,12 +149,12 @@ begin
 #~# EXPECTED
 
 begin
-  1  # a
+  1 # a
   # b
   3 # c
 end
 
-#~# ORIGINAL
+#~# ORIGINAL begin..end basic
 
 begin
 end
@@ -166,7 +168,7 @@ end
 
 # foo
 
-#~# ORIGINAL
+#~# ORIGINAL nested begin single line
 
 begin
   begin 1 end
@@ -180,7 +182,7 @@ begin
   end
 end
 
-#~# ORIGINAL
+#~# ORIGINAL begin def..end end single line def
 
 begin
   def foo(x) 1 end
@@ -208,7 +210,7 @@ begin
   end
 end
 
-#~# ORIGINAL
+#~# ORIGINAL begin do_block end
 
 begin
   foo do 1 end
@@ -222,7 +224,7 @@ begin
   end
 end
 
-#~# ORIGINAL
+#~# ORIGINAL begin for..in end
 
 begin
   for x in y do 1 end
@@ -236,7 +238,7 @@ begin
   end
 end
 
-#~# ORIGINAL skip
+#~# ORIGINAL begin comment block end
 
 begin
   # foo
