@@ -234,6 +234,21 @@ module Rufo
         visit_call_args(node)
       when :aref_field
         visit_array_setter(node)
+      when :method_add_block
+        visit_call_with_block(node)
+      when :fcall
+        # [:fcall, [:@ident, "foo", [1, 0]]]
+        visit node[1]
+      when :brace_block
+        visit_brace_block(node)
+      when :block_var
+        visit_block_arguments(node)
+      when :mlhs_paren
+        visit_mlhs_paren(node)
+      when :command
+        visit_command(node)
+      when :do_block
+        visit_do_block(node)
       else
         bug "Unhandled node: #{node.first} at #{current_token}"
       end
@@ -1100,7 +1115,12 @@ module Rufo
       nodes.each_with_index do |exp, i|
         visit exp
 
-        next if last?(i, nodes)
+        if last?(i, nodes)
+          skip_space
+          move_to_next_token if comma?
+          skip_space
+          next
+        end
 
         skip_space
         consume_token :on_comma
@@ -1431,6 +1451,264 @@ module Rufo
       end
     end
 
+    def visit_call_with_block(node)
+      # [:method_add_block, call, block]
+      _, call, block = node
+
+      visit call
+
+      consume_space
+
+      old_dot_column = @dot_column
+      old_original_dot_column = @original_dot_column
+
+      group do
+        visit block
+      end
+
+      @dot_column = old_dot_column
+      @original_dot_column = old_original_dot_column
+    end
+
+    def visit_block(node)
+      _, args, body = node
+
+      group do
+        write_if_break("do", "{")
+        move_to_next_token
+
+        consume_block_args args
+        consume_space
+
+        unless void_exps?(body)
+          visit_exps(body, with_lines: false)
+          consume_space
+        end
+
+        write_if_break("end", "}")
+        move_to_next_token
+      end
+    end
+
+    def visit_brace_block(node)
+      # [:brace_block, args, body]
+      visit_block(node)
+    end
+
+    def visit_do_block(node)
+      # [:do_block, args, body]
+      visit_block(node)
+    end
+
+    def visit_block_arguments(node)
+      # [:block_var, params, local_params]
+      _, params, local_params = node
+      empty_params = empty_params?(params)
+
+      check :on_op
+      # check for ||
+      if empty_params && !local_params
+        # Don't write || as it's meaningless
+        if current_token_value == "|"
+          move_to_next_token
+          skip_space_or_newline
+          check :on_op
+          move_to_next_token
+        elsif current_token_value == "||"
+          move_to_next_token
+        else
+          move_to_next_token
+        end
+        return
+      end
+
+      consume_token :on_op
+      found_semicolon = skip_space_or_newline
+
+      if found_semicolon
+        # Nothing
+      elsif empty_params && local_params
+        consume_token :on_semicolon
+        found_semicolon = true
+      end
+
+      skip_space_or_newline
+
+      unless empty_params
+        visit params
+        skip_space
+      end
+
+      if local_params
+        if semicolon?
+          consume_token :on_semicolon
+          consume_space
+        end
+
+        visit_comma_separated_list local_params
+      else
+        skip_space_or_newline
+      end
+
+      consume_op "|"
+    end
+
+    def visit_mlhs_paren(node)
+      # [:mlhs_paren,
+      #   [[:mlhs_paren, [:@ident, "x", [1, 12]]]]
+      # ]
+      _, args = node
+
+      visit_mlhs_or_mlhs_paren(args)
+    end
+
+    def visit_mlhs_or_mlhs_paren(args)
+      # Sometimes a paren comes, some times not, so act accordingly.
+      has_paren = current_token_kind == :on_lparen
+      if has_paren
+        consume_token :on_lparen
+        skip_space_or_newline
+      end
+
+      # For some reason there's nested :mlhs_paren for
+      # a single parentheses. It seems when there's
+      # a nested array we need parens, otherwise we
+      # just output whatever's inside `args`.
+      if args.is_a?(Array) && args[0].is_a?(Array)
+        indent(@column) do
+          visit_comma_separated_list args
+          skip_space_or_newline
+        end
+      else
+        visit args
+      end
+
+      if has_paren
+        # Ripper has a bug where parsing `|(w, *x, y), z|`,
+        # the "y" isn't returned. In this case we just consume
+        # all tokens until we find a `)`.
+        while current_token_kind != :on_rparen
+          consume_token current_token_kind
+        end
+
+        consume_token :on_rparen
+      end
+    end
+
+    def visit_command(node)
+      # foo arg1, ..., argN
+      #
+      # [:command, name, args]
+      _, name, args = node
+
+      # base_column = current_token_column
+
+      # push_call(node) do
+        visit name
+      #   consume_space_after_command_name
+        consume_space
+      # end
+
+      visit_command_end(node, args)
+    end
+
+    def visit_command_end(node, args)
+      # push_call(node) do
+        visit_command_args(args)
+      # end
+    end
+
+    def visit_command_args(args)
+      needed_indent = @column
+      args_is_def_class_or_module = false
+      # param_column = current_token_column
+
+      # Check if there's a single argument and it's
+      # a def, class or module. In that case we don't
+      # want to align the content to the position of
+      # that keyword.
+      if args[0] == :args_add_block
+        nested_args = args[1]
+        if nested_args.is_a?(Array) && nested_args.size == 1
+          first = nested_args[0]
+          if first.is_a?(Array)
+            case first[0]
+            when :def, :class, :module
+              needed_indent = @indent
+              args_is_def_class_or_module = true
+            end
+          end
+        end
+      end
+
+      # base_line = @line
+      # call_info = @line_to_call_info[@line]
+      # if call_info
+      #   call_info = nil
+      # else
+      #   call_info = [@indent, @column]
+      #   @line_to_call_info[@line] = call_info
+      # end
+
+      old_want_first_token_in_line = @want_first_token_in_line
+      @want_first_token_in_line = true
+
+      # We align call parameters to the first paramter
+      indent(needed_indent) do
+        visit_exps to_ary(args), with_lines: false
+      end
+
+      # if call_info && call_info.size > 2
+        # A call like:
+        #
+        #     foo, 1, [
+        #       2,
+        #     ]
+        #
+        # would normally be aligned like this (with the first parameter):
+        #
+        #     foo, 1, [
+        #            2,
+        #          ]
+        #
+        # However, the first style is valid too and we preserve it if it's
+        # already formatted like that.
+        # call_info << @line
+      # elsif !args_is_def_class_or_module && @first_token_in_line && param_column == @first_token_in_line[0][1]
+      if !args_is_def_class_or_module && @first_token_in_line && param_column == @first_token_in_line[0][1]
+        # If the last line of the call is aligned with the first parameter, leave it like that:
+        #
+        #     foo 1,
+        #         2
+      elsif !args_is_def_class_or_module && @first_token_in_line && base_column + @indent_size == @first_token_in_line[0][1]
+        # Otherwise, align it just by two spaces (so we need to dedent, we fake a dedent here)
+        #
+        #     foo 1,
+        #       2
+        @line_to_call_info[base_line] = [0, needed_indent - next_indent, true, @line, @line]
+      end
+
+      @want_first_token_in_line = old_want_first_token_in_line
+    end
+
+    def find_closing_brace_token
+      count = 0
+      i = @tokens.size - 1
+      while i >= 0
+        token = @tokens[i]
+        (line, column), kind = token
+        case kind
+        when :on_lbrace, :on_tlambeg
+          count += 1
+        when :on_rbrace
+          count -= 1
+          return [token, i] if count == 0
+        end
+        i -= 1
+      end
+      nil
+    end
+
     def to_ary(node)
       node[0].is_a?(Symbol) ? [node] : node
     end
@@ -1484,6 +1762,21 @@ module Rufo
     def consume_space
       skip_space_or_newline
       write(" ")
+    end
+
+    def consume_block_args(args)
+      if args
+        empty_params?(args[1]) ? skip_space : consume_space
+        group do
+          indent(@column + 1) do
+            visit args
+          end
+        end
+      end
+    end
+
+    def void_exps?(node)
+      node.size == 1 && node[0].size == 1 && node[0][0] == :void_stmt
     end
 
     def skip_space

@@ -105,6 +105,7 @@ RSpec.describe Rufo::NewFormatter do
     array_literal
     array_setter
     binary_operators
+    blocks
     hash_literal
     and_or_not
     assignment_operators
