@@ -178,6 +178,28 @@ module Rufo
         #
         # [:@int, "123", [1, 0]]
         consume_token :on_int
+      when :@float
+        # Float literal
+        #
+        # [:@int, "123.45", [1, 0]]
+        consume_token :on_float
+      when :@imaginary
+        # Imaginary literal
+        #
+        # [:@imaginary, "123i", [1, 0]]
+        consume_token :on_imaginary
+      when :@rational
+        # Rational literal
+        #
+        # [:@rational, "123r", [1, 0]]
+        consume_token :on_rational
+      when :@CHAR
+        # [:@CHAR, "?a", [1, 0]]
+        consume_token :on_CHAR
+      when :@backref
+        # [:@backref, "$1", [1, 0]]
+        write node[1]
+        next_token
       when :begin
         visit_begin(node)
       when :mrhs_new_from_args

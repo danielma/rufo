@@ -124,6 +124,12 @@ RSpec.describe Rufo::NewFormatter do
     calls_with_receiver
     double_newline_inside_type
     case
+    chars
+    global_variables
+    special_global_variables
+    floats
+    imaginaries
+    rationals
   ).each do |source_spec_name|
     file = File.join(NEW_FORMATTER_FILE_PATH, "/formatter_source_specs/#{source_spec_name}.rb.spec")
     fail "missing #{source_spec_name}" unless File.exist?(file)
