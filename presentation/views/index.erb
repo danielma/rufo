@@ -1,0 +1,40 @@
+<html>
+  <%
+
+  def output(code)
+    formatter = Rouge::Formatters::HTML.new
+    lexer = Rouge::Lexers::Ruby.new
+    formatter.format(lexer.lex(code))
+  end
+
+  css = Rouge::Theme.find('base16.dark').render(scope: '.highlight')
+  %>
+  <head>
+    <style type="text/css" media="screen">
+     html, body {
+       margin: 0;
+       padding: 0;
+       background-color: black;
+     }
+     .highlight {
+       height: 200%;
+       padding-left: 5px;
+       margin: 10px 5px;
+       font-family: monospace;
+       white-space: pre;
+       /* border-left: 3px solid #CCC; */
+     }
+     <%= css %>
+    </style>
+    <title>
+      <%= params['file'] %>
+      <% if params['length'] %>
+	: <%= params['length'] %>
+      <% end %>
+    </title>
+  </head>
+  <body>
+    <div class="highlight"><%= output(source) %></div>
+    <div class="highlight"><%= output(Rufo::NewFormatter.format(source, line_length: (params['length'] ? params['length'].to_i : 80))) %></div>
+  </body>
+</html>
