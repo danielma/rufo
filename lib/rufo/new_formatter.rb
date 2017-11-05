@@ -761,13 +761,20 @@ module Rufo
       !a && !b && !c && !d && !e && !f && !g
     end
 
-    def visit_paren(node)
+    def visit_paren(node, block: false)
       # ( exps )
       #
       # [:paren, exps]
       _, exps = node
 
-      consume_token :on_lparen
+      if block
+        check :on_lparen
+        write "|"
+        move_to_next_token
+      else
+        consume_token :on_lparen
+      end
+
       skip_space_or_newline
       write_softline
 
@@ -779,7 +786,14 @@ module Rufo
       end
 
       skip_space_or_newline
-      consume_token :on_rparen
+
+      if block
+        check :on_rparen
+        write "|"
+        move_to_next_token
+      else
+        consume_token :on_rparen
+      end
     end
 
     def visit_bodystmt(node)
@@ -940,43 +954,59 @@ module Rufo
       # [:lambda, [:params, nil, nil, nil, nil, nil, nil, nil], [[:void_stmt]]]
       _, params, body = node
 
-      unless current_token_kind == :on_tlambda || current_token_value == "lambda"
-        bug "expected { or lambda"
-      end
+      if body.length <= 2
+        # body is empty or only one statement, we can use -> syntax
+        consume_token :on_tlambda
 
-      move_to_next_token
-      write_if_break("lambda", "->")
+        visit params
 
-      visit params
+        if body == [[:void_stmt]]
+          consume_token :on_tlambeg
+          consume_space
+          consume_token :on_rbrace
+          return
+        end
 
-      consume_space
-
-      if body == [[:void_stmt]]
         consume_token :on_tlambeg
-        consume_space
+
+        indent do
+          visit_exps body
+        end
+
         consume_token :on_rbrace
-        return
+      else
+        skip_space_or_newline
+
+        check :on_tlambda
+        write "lambda do "
+        move_to_next_token
+
+        skip_space_or_newline
+
+        if params
+          check :on_lparen
+          skip_space_or_newline
+
+          group do
+            visit_paren(params, block: true)
+          end
+
+          skip_space_or_newline
+          write_hardline
+        end
+
+        check :on_tlambeg
+        move_to_next_token
+
+        indent do
+          skip_space_or_newline
+          visit_exps body
+        end
+
+        check :on_rbrace
+        move_to_next_token
+        write "end"
       end
-
-      unless current_token_kind == :on_tlambeg || current_token_value == "do"
-        bug "expected { or do"
-      end
-
-      move_to_next_token
-      write_if_break("do", "{ ")
-      write_softline
-
-      indent do
-        visit_exps body
-      end
-
-      unless current_token_kind == :on_rbrace || current_token_value == "end"
-        bug "expected } or end"
-      end
-
-      move_to_next_token
-      write_softline
-      write_if_break("end", " }")
     end
 
     def visit_suffix(node, suffix)
